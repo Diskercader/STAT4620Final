@@ -6,25 +6,38 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+#library(ISLR2)
+#library(splines)
+library(Hmisc)
+
+load("/Users/skeeter/Documents/Schoolwork/STAT4620/final/Boston_Stat4620_2023.RData")
 ```
 
-## R Markdown
+# Data Pre-processing
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+To begin our pre-processing, we will look for any missing or incomplete data. Out of 506 rows in the provided Boston dataset, we've found that 10 of them have missing data, and they are all in the response column. It is not advisable to impute data for 2 reasons: for one, the number of rows impacted by missing data is relatively minimal compared to the total number of rows, at about 2%. Secondarily, all the missing data is in the response column. Modifying our response data would make it difficult to approximate the true relationship, whereas we would still be able to approximate this true relationship very well if it were removed entirely.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r, echo=FALSE}
+#head(Boston.Stat4620)
+which(is.na(Boston.Stat4620), arr.ind=TRUE)
+df = na.omit(Boston.Stat4620)
+#head(df)
 ```
 
-## Including Plots
+Next, we will look at each variable on its own to get an idea of how each variable is distributed
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+hist.data.frame(df[1:15])
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+From these, we can see a few patterns in many of the columns. dis and lstat are both right skewed, and medv is very slightly right skewed. rm is relatively Normally distributed, though it seems to have a wide distribution of values (compared to a true Normal where we would expect to see a quicker dropoff). Our response variable and age are both left skewed. Black is technically left skewed, but more realistically anything beyond the right-most bins is an outlier. For all our other columns, there is no clear pattern (like tax, rad, or nox), and in the case of chas, it's not really applicable.
+
+We can also get a summary of the dataset:
+
+```{r}
+summary(df)
+```
+
+We can also get a good view of the "skew" of variables in this; anything with a mean var away from the median is generally skewed. We can also see the range of values for some variables. Some variables, like ptratio, have a very narrow range of 10, while others like back have a range of almost 400.
+
+Looking at our data, it seems highly likely that we have some outliers in each column. I don't really know how to handle these yet.
